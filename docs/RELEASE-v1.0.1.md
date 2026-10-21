@@ -12,7 +12,7 @@
 ### 这个版本的重点
 
 - **5 个 Minecraft 界面音效随包开源**：石切机「嗒」的点击声、开箱/关箱声、烟花成就声、木门出错声，
-  装机即有声，不用自己找素材。约 60 KB，仍在 `LICENSE` 第三方声明里标明归属（Mojang 素材，不在 MIT 范围内）。
+  装机即有声，不用自己找素材。约 60 KB，仍在 `THIRD_PARTY_NOTICES.md` 里标明归属（Mojang 素材，不在 MIT 范围内）。
 - **默认壁纸 `壁炉小屋`**：一张暗调、温暖的雪夜木屋，作为仓库里唯一随包的壁纸。
 - **壁纸库**：内置 + 本地 IndexedDB 上传/删除，自动轮换、亮度、暗化、面板不透明度都可调。
 - **BGM**：内置曲目目录（自己放文件即可识别）+ 界面内上传/删除，懒解码 + LRU 3 + 交叉淡入 + 自动接歌。
@@ -43,7 +43,7 @@ plugin_manager install_bundle  <克隆下来的目录绝对路径>
 | C418 原声音乐 | ❌ | 需自行准备，音源文件不入库 |
 | 其余 Minecraft 美术素材 | ❌ | 不入库 |
 
-详见 [LICENSE](https://github.com/JYT-copy/dsh-minecraft-ui/blob/main/LICENSE) 末尾的第三方声明与
+详见 [THIRD_PARTY_NOTICES.md](https://github.com/JYT-copy/dsh-minecraft-ui/blob/main/THIRD_PARTY_NOTICES.md) 与
 [docs/OPEN-SOURCE.md](https://github.com/JYT-copy/dsh-minecraft-ui/blob/main/docs/OPEN-SOURCE.md)。
 
 ### 本版验证
@@ -68,7 +68,7 @@ plugin_manager install_bundle  <克隆下来的目录绝对路径>
 
 ### v1.0.1
 
-- 新增：5 个 Minecraft 界面音效随包发布（`assets/sfx/*.mp3`），并补齐 LICENSE / README / docs 的版权说明。
+- 新增：5 个 Minecraft 界面音效随包发布（`assets/sfx/*.mp3`），并补齐 THIRD_PARTY_NOTICES / README / docs 的版权说明。
 - 文档：仓库与 npm 包清单、素材替换流程、版权投诉处理流程同步更新。
 
 ### v1.0.0（首发）

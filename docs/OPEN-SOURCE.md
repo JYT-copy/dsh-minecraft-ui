@@ -22,7 +22,7 @@
 > 关于音效：这 5 个 mp3 是 Mojang 的游戏素材，严格说不属于 MIT 许可范围，但它们是这个
 > 粉丝主题「听起来像原版」的关键，你已经确认可以随包发布，所以现在它们被提交进仓库、
 > 也会被打进 npm 包（总计约 60 KB）。**代价是别人 fork 时要自己判断能不能保留**——
-> 所以 `LICENSE` 末尾和 `assets/sfx/README.md` 都写明了：它们是 Mojang 财产、
+> 所以 `THIRD_PARTY_NOTICES.md` 和 `assets/sfx/README.md` 都写明了：它们是 Mojang 财产、
 > 不在 MIT 之内、删掉后插件会自动退回合成音（不会坏）。
 > 如果哪天想回到保守立场，把 `.gitignore` 里注释掉的那两行恢复即可。
 
@@ -40,7 +40,7 @@
 
 | 文件 | 作用 |
 | --- | --- |
-| `LICENSE` | MIT 正文 + 一段「第三方声明」：明确 5 个音效是 Mojang 财产、不在 MIT 之内，音乐/额外壁纸不随包 |
+| `LICENSE` | 纯 MIT 正文（保持 GitHub 能识别成 MIT）；素材归属另见 `THIRD_PARTY_NOTICES.md` |
 | `.gitignore` | 精确忽略：C418 音乐、除基础壁纸外的所有 webp、`manifest.local.json`、`_src/`、`tmp/`、`node_modules/`（音效**不再**忽略，并在注释里写明怎么恢复） |
 | `package.json` → `files` | npm 打包白名单：代码 + 基础壁纸 + `assets/sfx/*.mp3` + 三个 `assets/*/README.md`，**音乐和额外壁纸即使本机有也不会被打进去** |
 | `assets/wallpapers/README.md` | 告诉使用者怎么自己加壁纸、manifest 怎么写 |

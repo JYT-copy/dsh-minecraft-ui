@@ -19,32 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party notice
-
-This project is an unofficial, fan-made theme. It is not affiliated with,
-endorsed by, or sponsored by Mojang Studios or Microsoft.
-
-The MIT license above covers the source code in this repository. It does NOT
-cover Minecraft game assets.
-
-Bundled Minecraft assets (not MIT):
-
-  assets/sfx/*.mp3 — five Minecraft UI/game sound effects used for interface
-  feedback (stonecutter click, chest open/close, firework launch, wooden
-  door). They are the property of Mojang Studios / Microsoft, are included
-  here only to make this fan theme sound like the game it pays tribute to,
-  and are redistributed without a separate license from the rights holders.
-  If you fork or republish this project, you are responsible for deciding
-  whether you may keep these files; delete assets/sfx/ to fall back to the
-  built-in synthesized sounds (the plugin keeps working, just less authentic).
-
-NOT included, on purpose:
-
-  - the Minecraft soundtrack (C418) and any other commercial music
-  - additional Minecraft artwork / screenshots (only one base wallpaper,
-    assets/wallpapers/cozy-cabin.webp, ships with the plugin)
-
-See docs/OPEN-SOURCE.md for the full reasoning and how to swap assets in.
