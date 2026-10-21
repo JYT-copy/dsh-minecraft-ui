@@ -23,6 +23,33 @@
 
 ---
 
+## 界面预览
+
+整页效果：方块化面板、照片壁纸、星月窗景，右下角是 HUD 控制台。
+
+![整页效果](docs/screenshots/overview.jpg)
+
+<table>
+<tr>
+<td width="52%">
+
+**HUD 控制台**（右下角，可收起）：壁纸 / 音乐 / 音效 / 背景音乐 / 设置，一个方块按钮管全部。
+
+![HUD 控制台](docs/screenshots/hud.jpg)
+
+</td>
+<td width="48%">
+
+**壁纸库**：自动轮换、亮度/暗度/面板不透明度、我的壁纸（上传 + 删除）、内置壁纸网格。
+
+![壁纸库](docs/screenshots/wallpapers.jpg)
+
+</td>
+</tr>
+</table>
+
+---
+
 ## 1. 功能
 
 ### 壁纸

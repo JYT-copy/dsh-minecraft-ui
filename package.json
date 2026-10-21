@@ -34,6 +34,7 @@
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "docs/",
+    "!docs/screenshots/",
     "assets/wallpapers/cozy-cabin.webp",
     "assets/wallpapers/cozy-cabin.thumb.webp",
     "assets/wallpapers/README.md",
