@@ -1,0 +1,62 @@
+{
+  "name": "dsh-minecraft-ui",
+  "version": "1.0.0",
+  "description": "Minecraft-style theme for the dsh web GUI: blocky pixel components, photo wallpapers with local upload, click sounds with synthesized fallback, and local BGM with a crossfading playlist",
+  "icon": "icon.svg",
+  "type": "module",
+  "main": "index.js",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "minecraft",
+    "theme",
+    "pixel-ui",
+    "wallpaper"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.1 <0.3.0-0"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE",
+    "docs/",
+    "assets/wallpapers/cozy-cabin.webp",
+    "assets/wallpapers/cozy-cabin.thumb.webp",
+    "assets/wallpapers/README.md",
+    "assets/music/README.md",
+    "assets/sfx/README.md"
+  ],
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.1-rc.1"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-commands",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "license": "MIT",
+  "author": "dsh-minecraft-ui contributors"
+}

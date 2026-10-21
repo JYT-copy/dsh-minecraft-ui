@@ -1,0 +1,9 @@
+# minecraft-ui bundle patch: one row, dual-face plugin.
+# The node half (index.js) does nothing on the host; the browser half
+# (./client -> lib/client.js) registers all wallpaper / sound / pixel-UI
+# behaviour inside the dsh web GUI. The row name MUST equal the package name:
+# the client-modules node half resolves `<row-name>/package.json` to find the
+# package and scan its `dsh.client` declaration.
+- insert:
+    - id: minecraft-ui
+      name: 'dsh-minecraft-ui'

@@ -1,0 +1,25 @@
+# Dependencies (this is a dsh plugin, not an npm app)
+node_modules/
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# Local scratch: one-off patch scripts, screenshots, screenshots of the GUI
+tmp/
+
+# ---------------------------------------------------------------------------
+# Copyrighted material: NEVER commit these.
+# The Minecraft soundtrack (C418) and the game sound samples (Mojang) are the
+# property of their rights holders. They stay on the author's machine only.
+# ---------------------------------------------------------------------------
+assets/music/*
+!assets/music/README.md
+
+assets/sfx/*
+!assets/sfx/README.md
+
+# Wallpapers other than the single bundled base wallpaper (same reason).
+assets/wallpapers/*.webp
+!assets/wallpapers/cozy-cabin.webp
+!assets/wallpapers/cozy-cabin.thumb.webp
+assets/wallpapers/_src/
+assets/wallpapers/manifest.local.json

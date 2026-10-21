@@ -1,0 +1,9 @@
+# 统一换行：仓库里一律 LF，检出到 Windows 也不会变成 CRLF 造成整文件 diff。
+* text=auto eol=lf
+
+# 二进制素材：不要做任何换行/文本变换
+*.webp binary
+*.png binary
+*.ogg binary
+*.mp3 binary
+*.ico binary
