@@ -1,6 +1,6 @@
 # Minecraft 主题界面 · dsh-minecraft-ui
 
-[![license: MIT](https://img.shields.io/github/license/JYT-copy/dsh-minecraft-ui)](LICENSE)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![version](https://img.shields.io/github/v/tag/JYT-copy/dsh-minecraft-ui?label=version&sort=semver)](https://github.com/JYT-copy/dsh-minecraft-ui/tags)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-4c9f38)](https://github.com/JYT-copy/dsh-minecraft-ui#2-安装)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
