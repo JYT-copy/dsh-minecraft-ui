@@ -47,33 +47,43 @@
 
 ---
 
-## 3. 本地初始化并检查
+## 3. 本地仓库状态（已经初始化好了）
 
-在 `minecraft-ui` 目录里执行：
+`git init` + 第一个提交已经完成，`v1.0.0` 标签也已打好。当前仓库：
+
+- **37 个文件**被跟踪，`.git` 目录仅 0.3 MB；
+- `assets/` 下只有 6 个文件：`cozy-cabin.webp`、`cozy-cabin.thumb.webp`、`manifest.json`、三个 README；
+- 音乐（18.5 MB）、音效、其余 13 张壁纸、`manifest.local.json`、`tmp/` **都不在仓库里**。
+
+想自己复核一遍（应该没有输出、或者只剩无意义的空行）：
 
 ```powershell
+# ① 暂存区/仓库里绝对不能出现这些路径
+git ls-files | Select-String -Pattern 'assets/(music|sfx)/.+\.(mp3|ogg|oga|m4a|wav|flac)$|manifest\.local\.json|_src/|^tmp/'
+
+# ② 仓库里到底有哪些素材：应该只有上面那 6 个
+git ls-files assets
+
+# ③ 体积
+git ls-files -z | Measure-Object -Character   # 或直接看仓库大小
+```
+
+`.gitattributes` 已把换行统一成 LF，并声明 `*.webp/*.png/*.ogg/*.mp3` 为二进制，
+所以以后在 Windows 上提交也不会出现「整文件都变了」的 diff。
+
+如果之后你想重来一遍（比如想改成别的首个提交信息）：
+
+```powershell
+Remove-Item -Recurse -Force .git
 git init
 git add -A
-
-# ★ 关键检查一：暂存区里绝对不能出现这些路径，输出应为空
-git diff --cached --name-only | Select-String -Pattern 'assets/(music|sfx)/.+\.(mp3|ogg)$|assets/wallpapers/(?!cozy-cabin)|manifest\.local\.json|_src/'
-
-# ★ 关键检查二：看看到底有哪些素材被加进来了，应该只有 cozy-cabin 两个 webp + 三个 README
-git diff --cached --name-only | Select-String -Pattern '^assets/'
-
-# ★ 关键检查三：仓库体积，应该只有几 MB
-git diff --cached --stat | Select-Object -Last 1
-```
-
-三条都符合预期再提交：
-
-```powershell
 git commit -m "feat: dsh-minecraft-ui 1.0.0 — Minecraft 主题界面插件"
 git branch -M main
+git tag v1.0.0
 ```
 
-> 如果第一条检查有输出，说明 `.gitignore` 没生效（常见原因：这些文件在 `git init` 之前就被
-> `git add` 过，忽略规则对已跟踪文件无效）。用 `git rm --cached <路径>` 撤出暂存区再提交。
+> 注意：`.gitignore` 对**已经跟踪**的文件无效。如果哪天误把音乐 `git add` 进去过，
+> 必须 `git rm --cached <路径>` 才移得出来。
 
 ---
 
@@ -143,11 +153,12 @@ npm publish
 
 ```powershell
 node build.mjs                       # 重新生成 lib/client.js
-node tmp\audio-selftest.cjs          # 音频引擎自检（如改了 30-audio.js）
-node tmp\user-library-test.cjs       # IndexedDB 壁纸/音乐库自检
-node tmp\runtime-smoke.cjs           # 选项存储自检
-node tmp\css-parse.cjs               # MC_CSS 解析检查
-node tmp\symbol-audit.cjs            # 模板字符串里没有反引号等硬伤
+node test\audio-selftest.cjs         # 音频引擎自检（如改了 30-audio.js）
+node test\user-library-test.cjs      # IndexedDB 壁纸/音乐库自检
+node test\runtime-smoke.cjs          # 选项存储自检
+node test\css-parse.cjs              # MC_CSS 解析检查
+node test\i18n-audit.cjs             # 中英文字典键覆盖检查
+node test\symbol-audit.cjs           # 模板字符串里没有反引号等硬伤
 git add -A; git commit -m "fix: ..."; git tag v1.0.x; git push --follow-tags
 ```
 
