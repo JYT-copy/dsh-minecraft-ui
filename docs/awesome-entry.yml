@@ -1,0 +1,15 @@
+# 提交到 awesome-dsh-plugin 的条目（一个文件 = 一次投稿）
+#
+# 仓库：https://github.com/awesome-dsh-plugin/awesome-dsh-plugin
+# 目标路径：data/plugins/JYT-copy__dsh-minecraft-ui.yml
+# 要求：仓库创建满 1 天（CI 自动检查）、package.json 里有 dsh.bundle（有）、
+#       仓库带 dsh-plugin topic（已有）。不要手工改 README，README 由脚本生成。
+#
+# category 可选：agi ui usage theme model identity session memory tools wsl browser
+#              vision voice docs skill workflow git notify dev security remote market fun
+url: https://github.com/JYT-copy/dsh-minecraft-ui
+name: JYT-copy/dsh-minecraft-ui
+category: theme
+description:
+  en: 'Minecraft-styled theme for the DSH web GUI: blocky pixel components, a photo wallpaper library with auto-rotation and local uploads, Minecraft UI sound samples, and a BGM player with a local track library.'
+  zh: '给 DSH Web 界面用的 Minecraft 风格主题：方块化像素组件、可自动轮换与本地导入的照片壁纸库、Minecraft 界面音效，以及可导入本地曲目的 BGM 播放器。'
