@@ -10,15 +10,16 @@
  *  4. connect / disconnect 计数平衡（短音效、BGM stop 后不残留、无泄漏定时器）；
  *  5. 播放中调音量、suspend/resume、页面隐藏/恢复都不崩且行为正确；
  *  6. 用户曲目（Blob）注入 / 合并列表 / 播完自动接歌（宿主 <-> 用户混排）；
- *  7. 五个采样全部 404（开源仓库无素材）时，每个音效都有合成兜底、绝不变哑，
+ *  7. 五个采样全部 404（例如删掉 assets/sfx）时，每个音效都有合成兜底、绝不变哑，
  *     且每个音效的控制台提示最多一条。
  *
- * 运行：node minecraft-ui/tmp/audio-selftest.cjs
+ * 运行：node test/audio-selftest.cjs
  */
 
 const fs = require('fs');
+const path = require('path');
 
-const SRC = 'D:/HuaweiMoveData/Users/纪永泰/Desktop/DeepSeek work/minecraft-ui/src/30-audio.js';
+const SRC = path.join(__dirname, '..', 'src', '30-audio.js');
 
 /* ------------------------------------------------------------------ */
 /* 计数与断言                                                          */
