@@ -132,14 +132,20 @@ plugin_manager install_bundle  <仓库在本机的绝对路径>
 
 ## 6. 开源之后：使用者自己补素材
 
+**从 1.1.0 起有「个人素材目录」**：`~/.dsh/minecraft-ui/assets/{wallpapers,sfx,music}`（可用环境变量
+`MC_UI_ASSETS_DIR` 改位置）。它在安装目录之外，`npm install` / `plugin_manager install_bundle`
+升级时不会被整包替换掉；同名文件优先于包内素材。往 `node_modules/dsh-minecraft-theme/assets/`
+里放东西是错的——下一次升级就没了（这是真实踩过的坑，也是加这个目录的原因）。
+
 | 想补什么 | 怎么做 | 是否需要重新构建 |
 | --- | --- | --- |
-| 壁纸 | 界面里「上传壁纸」，或把 `<slug>.webp` 放进 `assets/wallpapers/` 并写 `manifest.json` | 放文件夹需要 Ctrl+R；界面上传不用 |
-| BGM | 界面里「设置 → 背景音乐 → 上传音乐」，或把音频放进 `assets/music/` | 放文件夹需要 Ctrl+R；界面上传不用 |
-| 音效 | **已经自带 5 个**；想换音色就覆盖同名 mp3（文件名见该目录 README），想关掉就删掉文件 | 需要 Ctrl+R |
+| 壁纸 | 界面里「上传壁纸」；或把 `<slug>.webp` 放进 `~/.dsh/minecraft-ui/assets/wallpapers/` 并写 `manifest.local.json` | 放文件夹需要 Ctrl+R；界面上传不用 |
+| BGM | 界面里「设置 → 背景音乐 → 上传音乐」；或把音频放进 `~/.dsh/minecraft-ui/assets/music/` | 放文件夹需要 Ctrl+R；界面上传不用 |
+| 音效 | **已经自带 5 个**；想换音色就覆盖个人目录 `sfx/` 里的同名 mp3（文件名见该目录 README），想关掉就删掉包内文件 | 需要 Ctrl+R |
 
 三处都**不需要**重新 build，也不需要重新安装插件：宿主端是按目录实时读取的。
 删掉 `assets/sfx/*.mp3` 也不会坏——每个音效都有合成兜底。
+清单里没有任何音乐/额外壁纸是刻意为之：它们是第三方作品，不能随开源包分发。
 
 ---
 
@@ -171,9 +177,11 @@ npm publish               # 包名 dsh-minecraft-theme，版本 1.0.x，MIT
 | 项 | 值 |
 | --- | --- |
 | npm 包页 | <https://www.npmjs.com/package/dsh-minecraft-theme> |
+| 当前版本 | `1.1.0`（个人素材目录 + 补发 `manifest.json`；24 files / 228.4 kB，unpacked 453 kB） |
 | 首个版本 | `1.0.1`（`dist-tags.latest = 1.0.1`，MIT，22 files / 224.4 kB，unpacked 444 kB） |
 | 发布账号 | `jytcopy` |
 | 端到端验证 | `plugin_manager remove_bundle dsh-minecraft-theme` 后 `install_bundle dsh-minecraft-theme` 从 registry 装回：版本 `1.0.1`、22 个文件、`lib/client.js` SHA256 与本地构建一致；`/api/minecraft-ui/wallpapers`、`/music`、`/sounds/<name>.mp3` 均 200，不存在音效 404 |
+| 1.1.0 验证 | registry 装回 `1.1.0`；包内只有 `cozy-cabin` 与 5 个音效（无音乐/额外壁纸），但 `~/.dsh/minecraft-ui/assets` 里的素材仍被列出：`/wallpapers` → 14 张、`/music` → 12 首，`壁炉小屋` 显示名正常（`manifest.json` 已随包） |
 
 两个踩过的坑：
 
@@ -183,6 +191,9 @@ npm publish               # 包名 dsh-minecraft-theme，版本 1.0.x，MIT
 2. **新包首发会多出一个 `0.0.0-stage` 版本**。npm 的 staged publishing 给全新包名先建占位版本，
    处理完成后真正的 `1.0.1` 才出现；`dist-tags.latest` 始终指向 `1.0.1`，安装不受影响。
    **不要**去 `npm unpublish` 那个占位版本（有连带撤掉整个包名的风险），留着即可。
+3. **刚发布的版本可能装不到**。`npm view ... version` 与 pnpm 都会缓存 registry 元数据：发完 `1.1.0`
+   立刻 `install_bundle` 仍会解析到 `1.0.1`（spec 是 `^1.0.1`）。直接查 registry 原始 JSON 确认版本已生效后，
+   用带版本号的 spec 安装即可：`install_bundle dsh-minecraft-theme@1.1.0`（先 `remove_bundle`）。
 
 账号开了 2FA 时有两种发布方式：`npm publish --otp=当前6位码`，或使用带 **Bypass 2FA** 的
 Granular Access Token（Permissions `Read and write`、Packages `All packages`——新包还没上架时选不到它，

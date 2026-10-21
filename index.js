@@ -14,13 +14,21 @@
  * wallpaper and no audio at all, and the browser half degrades to synthesized
  * UI sounds / no BGM when the listing comes back empty.
  *
+ * Personal media lives outside the package, in `MC_UI_ASSETS_DIR` (default
+ * `~/.dsh/minecraft-ui/assets`), with `wallpapers/`, `sfx/` and `music/`
+ * subdirectories shaped exactly like the bundled ones. Both sets are merged for
+ * the listings and a personal file wins on a name collision, so upgrading the
+ * package — which replaces the package directory — never removes the user's own
+ * artwork or soundtrack.
+ *
  * All routes are read-only and fail-closed: only file names accepted by their
- * own pattern inside this package's own asset directories are reachable, and
- * every other path answers 404.
+ * own pattern inside the bundled and personal asset directories are reachable,
+ * and every other path answers 404.
  * @module dsh-minecraft-ui
  */
 
 import { readFile, readdir, stat } from 'node:fs/promises'
+import { homedir } from 'node:os'
 import { extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -52,6 +60,25 @@ const SOUND_DIR = fileURLToPath(new URL('./assets/sfx/', import.meta.url))
 
 /** Absolute path of the bundled background-music directory. */
 const MUSIC_DIR = fileURLToPath(new URL('./assets/music/', import.meta.url))
+
+/**
+ * Personal asset directory, where the user's own wallpapers / sounds / music
+ * live. The npm package cannot ship third-party artwork or the Minecraft
+ * soundtrack, so anything the user brings themselves goes here instead of into
+ * the package: an upgrade replaces the package directory wholesale, and only
+ * this directory survives one.
+ *
+ * `MC_UI_ASSETS_DIR` overrides it; the default sits next to the rest of the
+ * harness state so it is obvious where personal media belongs.
+ */
+const USER_ASSET_ROOT = process.env.MC_UI_ASSETS_DIR || join(homedir(), '.dsh', 'minecraft-ui', 'assets')
+
+/** Personal directories, by asset kind. Missing directories are simply empty. */
+const USER_ASSET_DIRS = {
+  wallpapers: join(USER_ASSET_ROOT, 'wallpapers'),
+  sfx: join(USER_ASSET_ROOT, 'sfx'),
+  music: join(USER_ASSET_ROOT, 'music'),
+}
 
 /** Only lowercase slug names with an optional thumbnail suffix are servable. */
 const ASSET_NAME = /^[a-z0-9][a-z0-9-]*(\.thumb)?\.webp$/
@@ -170,9 +197,9 @@ function remainderOf(req, prefix) {
 }
 
 /** Read one JSON metadata file; returns an empty object when absent or invalid. */
-async function readManifest(name) {
+async function readManifest(directory, name) {
   try {
-    const text = await readFile(join(ASSET_DIR, name), 'utf8')
+    const text = await readFile(join(directory, name), 'utf8')
     const parsed = JSON.parse(text)
     return parsed && typeof parsed === 'object' ? parsed : {}
   } catch {
@@ -181,39 +208,78 @@ async function readManifest(name) {
 }
 
 /**
+ * File names in one directory that satisfy a predicate. A missing directory is
+ * reported as empty rather than as an error: personal asset directories are
+ * opt-in, and most installs never create them.
+ * @param {string} directory
+ * @param {(name: string) => boolean} accept
+ * @returns {Promise<string[]>}
+ */
+async function listNames(directory, accept) {
+  try {
+    const names = await readdir(directory)
+    return names.filter(accept)
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Resolve a file in the personal directory first and the bundled one second, so
+ * a same-named personal file overrides the shipped asset.
+ * @param {string[]} directories - in priority order.
+ * @param {string} name
+ * @returns {Promise<string | null>} absolute path, or null when no copy exists.
+ */
+async function findFile(directories, name) {
+  for (const directory of directories) {
+    const file = join(directory, name)
+    try {
+      const info = await stat(file)
+      if (info.isFile()) return file
+    } catch {
+      /* try the next directory */
+    }
+  }
+  return null
+}
+
+/**
  * Wallpaper listing: `{ ok, photos: [{ slug, name, desc }] }`.
  *
  * The catalogue is the directory itself, not a compiled-in list, so dropping
- * `<slug>.webp` (plus an optional `<slug>.thumb.webp`) into the folder is
- * enough to add a wallpaper. Names come from the manifests; entries without
- * metadata fall back to a humanized slug. Manifest order wins, the rest is
- * alphabetical, so the bundled wallpaper stays first.
+ * `<slug>.webp` (plus an optional `<slug>.thumb.webp`) into either the bundled
+ * folder or the personal one is enough to add a wallpaper. Personal entries win
+ * on a slug collision. Names come from the manifests; entries without metadata
+ * fall back to a humanized slug. Manifest order wins, the rest is alphabetical,
+ * so the bundled wallpaper stays first.
  * @param {import('node:http').IncomingMessage} req
  * @param {import('node:http').ServerResponse} res
  */
 async function serveWallpaperList(req, res) {
   if (!allowRead(req, res)) return
   const meta = new Map()
-  for (const file of WALLPAPER_MANIFESTS) {
-    const parsed = await readManifest(file)
-    const entries = Array.isArray(parsed.photos) ? parsed.photos : []
-    for (const entry of entries) {
-      if (!entry || typeof entry.slug !== 'string') continue
-      const slug = entry.slug.trim().toLowerCase()
-      if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue
-      meta.set(slug, {
-        slug,
-        name: typeof entry.name === 'string' && entry.name ? entry.name : humanizeSlug(slug),
-        desc: typeof entry.desc === 'string' ? entry.desc : '',
-      })
+  for (const directory of [ASSET_DIR, USER_ASSET_DIRS.wallpapers]) {
+    for (const file of WALLPAPER_MANIFESTS) {
+      const parsed = await readManifest(directory, file)
+      const entries = Array.isArray(parsed.photos) ? parsed.photos : []
+      for (const entry of entries) {
+        if (!entry || typeof entry.slug !== 'string') continue
+        const slug = entry.slug.trim().toLowerCase()
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue
+        meta.set(slug, {
+          slug,
+          name: typeof entry.name === 'string' && entry.name ? entry.name : humanizeSlug(slug),
+          desc: typeof entry.desc === 'string' ? entry.desc : '',
+        })
+      }
     }
   }
   try {
-    const names = await readdir(ASSET_DIR)
     const present = new Set()
-    for (const file of names) {
-      if (!ASSET_NAME.test(file) || file.endsWith('.thumb.webp')) continue
-      present.add(file.replace(/\.webp$/, ''))
+    for (const directory of [ASSET_DIR, USER_ASSET_DIRS.wallpapers]) {
+      const names = await listNames(directory, (file) => ASSET_NAME.test(file) && !file.endsWith('.thumb.webp'))
+      for (const file of names) present.add(file.replace(/\.webp$/, ''))
     }
     const photos = []
     for (const [slug, entry] of meta) {
@@ -236,12 +302,12 @@ async function serveWallpaperList(req, res) {
 /**
  * Build one read-only static file handler.
  * @param {string} prefix - URL prefix this handler answers for.
- * @param {string} directory - absolute directory the files are read from.
+ * @param {string[]} directories - absolute directories in priority order.
  * @param {RegExp} namePattern - the only file names allowed.
  * @param {string} contentType - response content type of the bytes.
  * @returns {(req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => Promise<void>} node handler.
  */
-function createAssetHandler(prefix, directory, namePattern, contentType) {
+function createAssetHandler(prefix, directories, namePattern, contentType) {
   return async function serveAsset(req, res) {
     if (!allowRead(req, res)) return
     const name = remainderOf(req, prefix)
@@ -249,10 +315,12 @@ function createAssetHandler(prefix, directory, namePattern, contentType) {
       notFound(res)
       return
     }
-    const file = join(directory, name)
+    const file = await findFile(directories, name)
+    if (!file) {
+      notFound(res)
+      return
+    }
     try {
-      const info = await stat(file)
-      if (!info.isFile()) throw new Error('not a file')
       const bytes = await readFile(file)
       res.writeHead(200, {
         'content-type': contentType,
@@ -284,10 +352,12 @@ async function serveWallpaper(req, res) {
     notFound(res)
     return
   }
-  const file = join(ASSET_DIR, name)
+  const file = await findFile([USER_ASSET_DIRS.wallpapers, ASSET_DIR], name)
+  if (!file) {
+    notFound(res)
+    return
+  }
   try {
-    const info = await stat(file)
-    if (!info.isFile()) throw new Error('not a file')
     const bytes = await readFile(file)
     res.writeHead(200, {
       'content-type': 'image/webp',
@@ -311,20 +381,23 @@ async function serveWallpaper(req, res) {
 async function serveMusicList(req, res) {
   if (!allowRead(req, res)) return
   try {
-    const names = await readdir(MUSIC_DIR)
-    const tracks = []
-    for (const file of names) {
-      if (!isMusicFile(file)) continue
-      let size = 0
-      try {
-        const info = await stat(join(MUSIC_DIR, file))
-        if (!info.isFile()) continue
-        size = info.size
-      } catch {
-        continue
+    const found = new Map()
+    for (const directory of [USER_ASSET_DIRS.music, MUSIC_DIR]) {
+      const names = await listNames(directory, isMusicFile)
+      for (const file of names) {
+        /* Personal tracks come first in the loop, so they keep their size and
+           the bundled copy of the same name is only a fallback. */
+        if (found.has(file)) continue
+        try {
+          const info = await stat(join(directory, file))
+          if (!info.isFile()) continue
+          found.set(file, info.size)
+        } catch {
+          continue
+        }
       }
-      tracks.push({ file, name: musicTitle(file), size })
     }
+    const tracks = Array.from(found, ([file, size]) => ({ file, name: musicTitle(file), size }))
     tracks.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
     sendJson(res, 200, { ok: true, tracks })
   } catch {
@@ -349,10 +422,12 @@ async function serveMusicFile(req, res) {
     notFound(res)
     return
   }
-  const file = join(MUSIC_DIR, name)
+  const file = await findFile([USER_ASSET_DIRS.music, MUSIC_DIR], name)
+  if (!file) {
+    notFound(res)
+    return
+  }
   try {
-    const info = await stat(file)
-    if (!info.isFile()) throw new Error('not a file')
     const bytes = await readFile(file)
     res.writeHead(200, {
       'content-type': MUSIC_TYPES[extname(name).toLowerCase()],
@@ -372,6 +447,7 @@ async function serveMusicFile(req, res) {
  */
 export function apply(ctx) {
   ctx.effect(() => {
+    console.info('[dsh-minecraft-theme] personal assets directory:', USER_ASSET_ROOT)
     const disposers = [
       ctx.webServer.register({
         kind: 'prefix',
@@ -381,7 +457,7 @@ export function apply(ctx) {
       ctx.webServer.register({
         kind: 'prefix',
         path: SOUND_PREFIX,
-        handler: createAssetHandler(SOUND_PREFIX, SOUND_DIR, SOUND_NAME, 'audio/mpeg'),
+        handler: createAssetHandler(SOUND_PREFIX, [USER_ASSET_DIRS.sfx, SOUND_DIR], SOUND_NAME, 'audio/mpeg'),
       }),
       ctx.webServer.register({
         kind: 'exact',

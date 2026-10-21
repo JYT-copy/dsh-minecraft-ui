@@ -156,19 +156,42 @@ GET /api/minecraft-ui/music/<file>                   # BGM 文件（ogg/oga/mp3/
 
 壁纸名只允许 `^[a-z0-9][a-z0-9-]*(\.thumb)?\.webp$`，音效只允许 `^[a-z0-9][a-z0-9._-]*\.mp3$`，
 音乐只接受已知音频扩展名且拒绝任意路径分隔符与 `..`；音乐清单 `no-store`，随放随发现。
+每个路由都会先查个人素材目录、再回退到包内目录（见下一节）。
 
 ---
 
 ## 3. 素材自备 / 替换
 
+npm 包每次升级都会整包替换，所以**自己攒的壁纸和音乐别放进 `node_modules`**。
+把它们放进「个人素材目录」，升级不会碰它：
+
+```text
+~/.dsh/minecraft-ui/assets/
+├── wallpapers/
+│   ├── my-room.webp                        # 1600px 原图
+│   ├── my-room.thumb.webp                  # 可选，480px 缩略图
+│   └── manifest.local.json                 # 可选，写好看的显示名与描述
+├── sfx/
+│   └── ui-stonecutter-select_recipe-1.mp3  # 同名文件覆盖包内音效
+└── music/
+    └── C418 - Sweden.ogg
+```
+
+- 路径就是用户主目录下的 `.dsh/minecraft-ui/assets`（Windows 即 `C:\Users\<你>\.dsh\minecraft-ui\assets`）。
+  想放别处就设环境变量 `MC_UI_ASSETS_DIR`（指向 `assets` 这一层）；宿主启动时会在日志里打印实际目录。
+- **同名优先**：个人 `wallpapers/` 里放一个与包内同 slug 的图即可换掉 `cozy-cabin`；`music/` 里同名文件也以个人为准。
+- `manifest.local.json` 与 `assets/wallpapers/manifest.json` 同格式，只写自己的照片就行；宿主把两份清单与真实存在的文件合并，个人条目覆盖同 slug 的包内条目。
+- 目录不存在或某类子目录为空都不算错误，自动回退到包内素材。
+- 不想碰文件夹的也能在界面里上传（存浏览器 IndexedDB，跨插件升级保留，但换浏览器或清缓存就没了）。
+
 | 想补什么 | 怎么做 | 要刷新吗 |
 | --- | --- | --- |
-| 壁纸 | 界面里上传；或放进 `assets/wallpapers/` 并写 `manifest.json`（格式见该目录 README） | 放文件夹需要 Ctrl+R |
-| BGM | 界面里「我的音乐 → 上传音乐」；或放进 `assets/music/` | 放文件夹需要 Ctrl+R |
-| 音效 | **已自带 5 个**；想换音色就覆盖 `assets/sfx/` 里的同名 mp3，想关掉就删文件（自动退回合成音） | 需要 Ctrl+R |
+| 壁纸 | 界面里上传；或放进个人素材目录 `wallpapers/`（配 `manifest.local.json`） | 放文件夹需要 Ctrl+R |
+| BGM | 界面里「我的音乐 → 上传音乐」；或放进个人素材目录 `music/` | 放文件夹需要 Ctrl+R |
+| 音效 | 包内**自带 5 个**；覆盖个人素材目录 `sfx/` 里的同名 mp3 换音色，删掉包内文件则退回合成音 | 需要 Ctrl+R |
 
 三处都不需要重新 build、也不需要重装插件：宿主端按目录实时读取。
-音乐与额外壁纸**刻意不随仓库发布**（版权原因，见 [docs/OPEN-SOURCE.md](docs/OPEN-SOURCE.md)）；
+音乐与额外壁纸**刻意不随仓库/包发布**（版权原因，见 [docs/OPEN-SOURCE.md](docs/OPEN-SOURCE.md)）；
 5 个短音效按你的决定随包发布，但仍在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 里说明了权利归属。
 
 ---
@@ -252,6 +275,7 @@ node test/css-parse.cjs            # lightningcss 真解析（规则数与警告
 node test/runtime-smoke.cjs        # 配置合并/夹取/损坏与旧版本迁移 + 令牌表
 node test/audio-selftest.cjs       # 音频：preload/样本映射/BGM 清单与切歌/用户曲目/节点配平/零泄漏
 node test/user-library-test.cjs    # 本机库：IndexedDB 壁纸 + 音乐增删、缩放、缩略图、v1→v2 迁移
+node test/asset-dirs.cjs           # 宿主素材目录：个人目录与包内合并、同名覆盖、404/405、缺目录兜底
 node test/symbol-audit.cjs         # 拼接后 bundle 的标识符声明审计
 node test/parse-locate.cjs         # 构建失败时定位出错片段的本地行号
 ```
@@ -264,6 +288,7 @@ node test/parse-locate.cjs         # 构建失败时定位出错片段的本地�
 - **壁纸可见性**：壁纸是 `z-index:-2` 的固定层，必须同时满足三件事——`#root`/窗口 frame 不涂不透明底色、面板表面令牌半透明（默认 `ui.glass = 0.5`，可到 0）、`<html>` 上也挂一份 `background-image` 兜底。旧版默认 `glass = 0.9`（面板 79% 不透明）是「看不见壁纸」的主因。
 - **素材走宿主路由而非内联**：壁纸、音效、音乐内联会把 bundle 撑到几十 MB；全部由宿主端 `webServer.register` 提供静态文件，客户端只拼 URL。清单路由还让「往目录扔文件」即刻生效。
 - **BGM 用采样而非合成**：合成循环与 Minecraft 听感差距明显；现在播放你自己的曲目，懒解码 + LRU 3 首控制内存，切歌用双 source 交叉淡入避免爆音。
+- **个人素材目录独立于安装目录**：npm 升级是整包替换，往 `node_modules` 里放图/音乐每次 `npm install`/`plugin_manager install_bundle` 都会消失（真实踩过）。所以宿主额外读 `~/.dsh/minecraft-ui/assets/{wallpapers,sfx,music}`，个人文件优先于包内同名文件，可用 `MC_UI_ASSETS_DIR` 覆盖位置；目录不存在就当空。
 - **用户库放 IndexedDB**：上传的 `File` 只存在于浏览器进程，宿主半拿不到（没有跨进程文件通道），base64 RPC 又会被几 MB 的原图撑爆；IndexedDB 能存 Blob、不受 localStorage 5MB 配额限制。壁纸与音乐共用一个数据库、一次 `open`。
 - **素材边界按体积/风险分级**：C418 音乐与第三方壁纸是完整作品，全部由 `.gitignore` 排除、再由 `package.json` 的 `files` 白名单二次兜底；5 个 ~60 KB 的短音效（开箱/石切机/烟花/木门）决定随包发布，因为它们决定「像不像 Minecraft」，并在 `THIRD_PARTY_NOTICES.md` 与 `assets/sfx/README.md` 里明确标注 Mojang 归属、不在 MIT 之内；缺样本时靠合成兜底保证可用。
 - **音效只挂在交互元素上**：事件委托 + 捕获阶段，遍历 `button/a/[role=button]/[role=tab]/[role=menuitem]/…`，跳过插件自身 UI（`[data-mc-ui]`），避免误响。
