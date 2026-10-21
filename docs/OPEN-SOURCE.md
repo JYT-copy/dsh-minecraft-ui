@@ -54,23 +54,24 @@
 
 ## 3. 本地仓库状态（已经初始化好了）
 
-`git init` + 第一个提交已经完成，`v1.0.0` 标签也已打好。当前仓库：
+`git init` + 提交已经完成，标签有 `v1.0.0`（代码首发）与 `v1.0.1`（音效随包）。当前仓库：
 
-- **37 个文件**被跟踪，`.git` 目录仅 0.3 MB；
-- `assets/` 下只有 6 个文件：`cozy-cabin.webp`、`cozy-cabin.thumb.webp`、`manifest.json`、三个 README；
-- 音乐（18.5 MB）、音效、其余 13 张壁纸、`manifest.local.json`、`tmp/` **都不在仓库里**。
+- **42 个文件**被跟踪，`.git` 目录仅 0.38 MB；
+- `assets/` 下 11 个文件：`cozy-cabin.webp`、`cozy-cabin.thumb.webp`、`manifest.json`、
+  **5 个音效 mp3**、三个 README；
+- 音乐（18.5 MB）、其余 13 张壁纸、`manifest.local.json`、`tmp/` **都不在仓库里**。
 
-想自己复核一遍（应该没有输出、或者只剩无意义的空行）：
+想自己复核一遍：
 
 ```powershell
-# ① 暂存区/仓库里绝对不能出现这些路径
-git ls-files | Select-String -Pattern 'assets/(music|sfx)/.+\.(mp3|ogg|oga|m4a|wav|flac)$|manifest\.local\.json|_src/|^tmp/'
+# ① 仓库里绝对不能出现音乐和第 3 张壁纸（音效除外，它已确认随包）
+git ls-files | Select-String -Pattern 'assets/music/.+\.(mp3|ogg|oga|m4a|wav|flac)$|manifest\.local\.json|_src/|^tmp/'
 
-# ② 仓库里到底有哪些素材：应该只有上面那 6 个
+# ② 仓库里到底有哪些素材：应该是上面那 11 个
 git ls-files assets
 
-# ③ 体积
-git ls-files -z | Measure-Object -Character   # 或直接看仓库大小
+# ③ npm 包里到底有什么：20 个文件、约 216 KB
+npm pack --dry-run --json
 ```
 
 `.gitattributes` 已把换行统一成 LF，并声明 `*.webp/*.png/*.ogg/*.mp3` 为二进制，
