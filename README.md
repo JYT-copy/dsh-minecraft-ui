@@ -1,5 +1,6 @@
-# Minecraft 主题界面 · dsh-minecraft-ui
+# Minecraft 主题界面 · dsh-minecraft-theme
 
+[![npm](https://img.shields.io/npm/v/dsh-minecraft-theme?label=npm)](https://www.npmjs.com/package/dsh-minecraft-theme)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![version](https://img.shields.io/github/v/tag/JYT-copy/dsh-minecraft-ui?label=version&sort=semver)](https://github.com/JYT-copy/dsh-minecraft-ui/tags)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-4c9f38)](https://github.com/JYT-copy/dsh-minecraft-ui#2-安装)
@@ -108,6 +109,18 @@
 
 要求：DSH ≥ 0.2.1-rc.1，Node 22.19+ / 24+。
 
+**方式 A：从 npm 装（推荐）**
+
+```text
+plugin_manager install_bundle  dsh-minecraft-theme
+```
+
+> npm 包名是 `dsh-minecraft-theme`，不是仓库名 `dsh-minecraft-ui`——因为 `dsh-minecraft-ui`
+> 这个名字早在 2026-08 就被另一位作者的同类插件占用（见 [npm](https://www.npmjs.com/package/dsh-minecraft-ui)），
+> 所以这里换了名但保持同一个项目。仓库地址仍是 `JYT-copy/dsh-minecraft-ui`。
+
+**方式 B：从源码/本地目录装**（想改代码、或没网时）
+
 把仓库克隆（或下载解压）到任意目录，然后安装这个「bundle 包」：
 
 ```text
@@ -124,8 +137,11 @@ plugin_manager install_bundle  <仓库在本机的绝对路径>
 卸载：
 
 ```text
-plugin_manager remove_bundle  dsh-minecraft-ui
+plugin_manager remove_bundle  dsh-minecraft-theme
 ```
+
+> 早期版本安装名是 `dsh-minecraft-ui`（目录名可能还留在 profile 里）。
+> 从旧版升级：先 `plugin_manager remove_bundle dsh-minecraft-ui`，再按上面的方式装新版。
 
 ### 宿主端只读路由
 

@@ -50,8 +50,8 @@ try {
 if (!bundle.includes('window.__ModuleLoader__.load(')) {
   problems.push('missing window.__ModuleLoader__.load( wrapper')
 }
-if (!bundle.includes("id: 'dsh-minecraft-ui'")) {
-  problems.push('missing loader id dsh-minecraft-ui')
+if (!bundle.includes("id: 'dsh-minecraft-theme'")) {
+  problems.push('missing loader id dsh-minecraft-theme (must equal the package name)')
 }
 if (!bundle.includes('apply: mcApply')) {
   problems.push('missing exported apply: mcApply')

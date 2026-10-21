@@ -1,9 +1,12 @@
-/* dsh-minecraft-ui — client bundle.
+/* dsh-minecraft-theme — client bundle.
  * Hand-written single-file browser bundle, assembled from src/*.js by
  * build.mjs. Runs inside the dsh web GUI module loader.
+ *
+ * The `id` MUST equal the npm package name: the loader keys client modules by
+ * it, and the host resolves the module through `<package-name>/client`.
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-minecraft-ui',
+  id: 'dsh-minecraft-theme',
   factory: (require) => {
     'use strict'
 

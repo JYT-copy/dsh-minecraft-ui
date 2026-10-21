@@ -143,18 +143,32 @@ plugin_manager install_bundle  <仓库在本机的绝对路径>
 
 ---
 
-## 7. 可选：发到 npm
+## 7. 发到 npm
+
+**包名已定为 `dsh-minecraft-theme`**：仓库名 `dsh-minecraft-ui` 在 npm 上被另一位作者的同名插件占用了
+（`dsh-minecraft-ui@0.3.0`，2026-08 发布，也是 Minecraft 主题），所以发布名换成了空闲的
+`dsh-minecraft-theme`。改名涉及三处，改完必须重建并重装验证：
+
+| 位置 | 值 |
+| --- | --- |
+| `package.json` → `name` | `dsh-minecraft-theme` |
+| `cordis.patch.yml` → 行的 `name` | `dsh-minecraft-theme`（**必须**等于包名，客户端模块靠它解析 `<包名>/package.json`） |
+| 插件 `id`（`cordis.patch.yml` / `lib/client.js` 里的 `minecraft-ui`） | **不改**，那是运行时插件 id，不是包名 |
 
 ```powershell
 npm login
 npm publish --dry-run     # 先看清单：应有代码 + cozy-cabin 两个 webp + assets/sfx/*.mp3 + 三个 README
-npm publish
+npm publish               # 包名 dsh-minecraft-theme，版本 1.0.x，MIT
 ```
 
 `files` 白名单已经写好，`--dry-run` 的输出里 `assets/` 下应该只有
 `cozy-cabin*.webp`、`assets/sfx/*.mp3`（5 个）和三个 `assets/*/README.md`；
-**不应该**出现任何 `assets/music/` 音频，也不应出现第 3 张壁纸。
-别人装 npm 包的方式同理：`plugin_manager install_bundle dsh-minecraft-ui`。
+**不应该**出现任何 `assets/music/` 音频，也不应出现第 3 张壁纸，也不应包含 `docs/screenshots/`（已在 `files` 里用 `!` 排除）。
+别人装 npm 包的方式同理：`plugin_manager install_bundle dsh-minecraft-theme`。
+
+**发布之后**想让它在 DSH 插件市场（`dshmarket`，社区市场，4200+ 插件）里出现：
+市场列表来自策划仓库 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin)，
+去那里按它的格式提一个 PR（一条条目），站点和市场通常一天内自动收录；**不要**给 dshmarket 仓库本身提条目 PR。
 
 ---
 

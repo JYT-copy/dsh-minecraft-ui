@@ -6,4 +6,4 @@
 # package and scan its `dsh.client` declaration.
 - insert:
     - id: minecraft-ui
-      name: 'dsh-minecraft-ui'
+      name: 'dsh-minecraft-theme'
