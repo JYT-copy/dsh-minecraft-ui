@@ -166,6 +166,28 @@ npm publish               # 包名 dsh-minecraft-theme，版本 1.0.x，MIT
 **不应该**出现任何 `assets/music/` 音频，也不应出现第 3 张壁纸，也不应包含 `docs/screenshots/`（已在 `files` 里用 `!` 排除）。
 别人装 npm 包的方式同理：`plugin_manager install_bundle dsh-minecraft-theme`。
 
+### 已经发布（2026-10-21）
+
+| 项 | 值 |
+| --- | --- |
+| npm 包页 | <https://www.npmjs.com/package/dsh-minecraft-theme> |
+| 首个版本 | `1.0.1`（`dist-tags.latest = 1.0.1`，MIT，22 files / 224.4 kB，unpacked 444 kB） |
+| 发布账号 | `jytcopy` |
+| 端到端验证 | `plugin_manager remove_bundle dsh-minecraft-theme` 后 `install_bundle dsh-minecraft-theme` 从 registry 装回：版本 `1.0.1`、22 个文件、`lib/client.js` SHA256 与本地构建一致；`/api/minecraft-ui/wallpapers`、`/music`、`/sounds/<name>.mp3` 均 200，不存在音效 404 |
+
+两个踩过的坑：
+
+1. **token 里带了尖括号**。`npm config set //registry.npmjs.org/:_authToken=<token>` 这种写法，如果复制时把
+   `<` `>` 也粘进去，`.npmrc` 里会变成 42 个字符（正常是 `npm_` + 36 位 = 40），
+   `npm whoami` 和 `npm publish` 全部 `401 Unauthorized`。粘完务必先跑 `npm whoami`，输出 `jytcopy` 才算对。
+2. **新包首发会多出一个 `0.0.0-stage` 版本**。npm 的 staged publishing 给全新包名先建占位版本，
+   处理完成后真正的 `1.0.1` 才出现；`dist-tags.latest` 始终指向 `1.0.1`，安装不受影响。
+   **不要**去 `npm unpublish` 那个占位版本（有连带撤掉整个包名的风险），留着即可。
+
+账号开了 2FA 时有两种发布方式：`npm publish --otp=当前6位码`，或使用带 **Bypass 2FA** 的
+Granular Access Token（Permissions `Read and write`、Packages `All packages`——新包还没上架时选不到它，
+Organizations 必须 `No access`，否则「必须选一个组织」的校验过不去）。
+
 **发布之后**想让它在 DSH 插件市场（`dshmarket`，社区市场，4200+ 插件）里出现：
 市场列表来自策划仓库 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin)，
 去那里按它的格式提一个 PR（一条条目），站点和市场通常一天内自动收录；**不要**给 dshmarket 仓库本身提条目 PR。
@@ -183,6 +205,14 @@ node test\css-parse.cjs              # MC_CSS 解析检查
 node test\i18n-audit.cjs             # 中英文字典键覆盖检查
 node test\symbol-audit.cjs           # 模板字符串里没有反引号等硬伤
 git add -A; git commit -m "fix: ..."; git tag v1.0.x; git push --follow-tags
+```
+
+发新版再加两步（先改 `package.json` 里的 `version`）：
+
+```powershell
+npm publish --dry-run                 # 确认清单仍然是 22 个文件左右、不含音乐和截图
+npm publish --otp=当前6位码            # 配了 bypass-2fa token 时直接 npm publish
+git push --follow-tags                # 把新 tag 推上去，README 的 version 徽章会自动变
 ```
 
 > `MC_CSS` 是一整段模板字符串，**里面不能出现反引号**，否则构建会以
