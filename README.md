@@ -1,5 +1,10 @@
 # Minecraft 主题界面 · dsh-minecraft-ui
 
+[![license: MIT](https://img.shields.io/github/license/JYT-copy/dsh-minecraft-ui)](LICENSE)
+[![version](https://img.shields.io/github/v/tag/JYT-copy/dsh-minecraft-ui?label=version&sort=semver)](https://github.com/JYT-copy/dsh-minecraft-ui/tags)
+[![dsh plugin](https://img.shields.io/badge/dsh-plugin-4c9f38)](https://github.com/JYT-copy/dsh-minecraft-ui#2-安装)
+[![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+
 把 DSH Web 界面整体换成 Minecraft 风格：**方块化像素组件 + 可自建的照片壁纸库 + Minecraft 界面音效 + 可自建曲库的 BGM 播放器**。
 颜色不额外染色，跟随 DSH 原有的主题与亮/暗色模式。
 
