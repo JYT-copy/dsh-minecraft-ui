@@ -1,7 +1,7 @@
 {
   "name": "dsh-minecraft-ui",
-  "version": "1.0.0",
-  "description": "Minecraft-style theme for the dsh web GUI: blocky pixel components, photo wallpapers with local upload, click sounds with synthesized fallback, and local BGM with a crossfading playlist",
+  "version": "1.0.1",
+  "description": "Minecraft-style theme for the dsh web GUI: blocky pixel components, photo wallpapers with local upload, bundled Minecraft UI sound samples (with synthesized fallback), and local BGM with a crossfading playlist",
   "icon": "icon.svg",
   "type": "module",
   "main": "index.js",
@@ -37,7 +37,8 @@
     "assets/wallpapers/cozy-cabin.thumb.webp",
     "assets/wallpapers/README.md",
     "assets/music/README.md",
-    "assets/sfx/README.md"
+    "assets/sfx/README.md",
+    "assets/sfx/*.mp3"
   ],
   "dsh": {
     "engines": {

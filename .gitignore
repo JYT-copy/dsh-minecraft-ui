@@ -7,15 +7,20 @@ pnpm-debug.log*
 tmp/
 
 # ---------------------------------------------------------------------------
-# Copyrighted material: NEVER commit these.
-# The Minecraft soundtrack (C418) and the game sound samples (Mojang) are the
-# property of their rights holders. They stay on the author's machine only.
+# Copyrighted material: keep these out of the repo.
+# The Minecraft soundtrack (C418) and the extra wallpapers are third-party
+# assets that we have no permission to redistribute.
+#
+# NOTE: the 5 UI sound samples in assets/sfx/ ARE bundled with this plugin by
+# the author's decision (they make the click/chest sounds convincing). They are
+# Mojang assets, NOT covered by the MIT license, and remain the property of
+# their rights holders — see LICENSE + assets/sfx/README.md. To go back to the
+# conservative stance, re-add:
+#   assets/sfx/*
+#   !assets/sfx/README.md
 # ---------------------------------------------------------------------------
 assets/music/*
 !assets/music/README.md
-
-assets/sfx/*
-!assets/sfx/README.md
 
 # Wallpapers other than the single bundled base wallpaper (same reason).
 assets/wallpapers/*.webp

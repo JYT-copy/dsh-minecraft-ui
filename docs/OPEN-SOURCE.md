@@ -16,13 +16,18 @@
 | 基础壁纸 `cozy-cabin.webp` | `assets/wallpapers/` | 你提供的图，允许开源 | ✅ 随仓库发布（仅此一张） |
 | 其余 13 张壁纸 | `assets/wallpapers/` | 来源不明 / 非你所有 | ❌ **不提交**，已被 `.gitignore` 忽略 |
 | 11 首 C418 原声 | `assets/music/` | C418 / Mojang，受版权保护 | ❌ **不提交** |
-| 5 个游戏音效 | `assets/sfx/` | Mojang，受版权保护 | ❌ **不提交** |
+| 5 个游戏音效 | `assets/sfx/` | Mojang 素材，但**你决定随包开源** | ✅ 随仓库与 npm 包发布（约 60 KB） |
 | 界面截图 | — | 可能含你的私人会话内容 | ❌ 一般不发；发就裁剪、脱敏 |
 
-> 关于音效：你提到的是 BGM 和壁纸，但游戏音效（箱子、石切机、烟花…）同样是 Mojang 的素材，
-> 也不能随仓库发布。所以 `assets/sfx/` 也被排除了。**插件在没有任何音效文件时不会静音**——
-> `src/30-audio.js` 对这 5 个音效都有合成兜底，装到别人机器上照样「嗒」得出来，只是不如原版像。
-> 这条已写进 README 的「已知限制」。
+> 关于音效：这 5 个 mp3 是 Mojang 的游戏素材，严格说不属于 MIT 许可范围，但它们是这个
+> 粉丝主题「听起来像原版」的关键，你已经确认可以随包发布，所以现在它们被提交进仓库、
+> 也会被打进 npm 包（总计约 60 KB）。**代价是别人 fork 时要自己判断能不能保留**——
+> 所以 `LICENSE` 末尾和 `assets/sfx/README.md` 都写明了：它们是 Mojang 财产、
+> 不在 MIT 之内、删掉后插件会自动退回合成音（不会坏）。
+> 如果哪天想回到保守立场，把 `.gitignore` 里注释掉的那两行恢复即可。
+
+> 音乐与其余壁纸仍然保持排除：C418 原声和第三方壁纸是明确的完整作品，
+> 随包分发风险远高于 60 KB 的短音效。
 
 关于 `lib/client.js`（构建产物）：它是你自己代码打包的结果，可以提交，好处是别人 clone 之后
 不用装依赖、不用构建就能直接安装插件。
@@ -35,12 +40,12 @@
 
 | 文件 | 作用 |
 | --- | --- |
-| `LICENSE` | MIT 正文 + 一段「第三方声明」，明确 Minecraft 素材不在此许可范围内 |
-| `.gitignore` | 精确忽略：音乐、音效、除基础壁纸外的所有 webp、`manifest.local.json`、`_src/`、`tmp/`、`node_modules/` |
-| `package.json` → `files` | npm 打包白名单，只列基础壁纸和三个 `assets/*/README.md`，**即使你本机有音乐也不会被打进 npm 包** |
+| `LICENSE` | MIT 正文 + 一段「第三方声明」：明确 5 个音效是 Mojang 财产、不在 MIT 之内，音乐/额外壁纸不随包 |
+| `.gitignore` | 精确忽略：C418 音乐、除基础壁纸外的所有 webp、`manifest.local.json`、`_src/`、`tmp/`、`node_modules/`（音效**不再**忽略，并在注释里写明怎么恢复） |
+| `package.json` → `files` | npm 打包白名单：代码 + 基础壁纸 + `assets/sfx/*.mp3` + 三个 `assets/*/README.md`，**音乐和额外壁纸即使本机有也不会被打进去** |
 | `assets/wallpapers/README.md` | 告诉使用者怎么自己加壁纸、manifest 怎么写 |
 | `assets/music/README.md` | 告诉使用者为什么目录是空的、音乐放哪、命名规则 |
-| `assets/sfx/README.md` | 5 个音效的文件名对照表，缺文件时的兜底行为 |
+| `assets/sfx/README.md` | 5 个音效的用途/大小/版权说明，缺失时的合成兜底对照表 |
 
 `assets/wallpapers/manifest.json`（公开清单）只登记了 `cozy-cabin` 一条；
 你本机的 13 张写在 `manifest.local.json` 里，该文件已被 gitignore。
@@ -95,14 +100,14 @@ git tag v1.0.0
 
 ```powershell
 git remote add origin https://github.com/<你的用户名>/dsh-minecraft-ui.git
-git push -u origin main
-git tag v1.0.0
-git push origin v1.0.0
+git branch -M main
+git push -u origin main --follow-tags
 ```
 
 3. 在仓库右侧 About 里填一句英文简介、加 topics：`dsh`、`dsh-plugin`、`minecraft`、`theme`、`pixel-ui`。
 4. 建议在仓库描述或 README 顶部保留这句声明：
-   *Unofficial fan theme. Not affiliated with Mojang or Microsoft. Game assets are not included.*
+   *Unofficial fan theme. Not affiliated with Mojang or Microsoft. Includes a few Minecraft sound
+   samples for UI feedback, under a third-party notice (not MIT).*
 
 ---
 
@@ -130,9 +135,10 @@ plugin_manager install_bundle  <仓库在本机的绝对路径>
 | --- | --- | --- |
 | 壁纸 | 界面里「上传壁纸」，或把 `<slug>.webp` 放进 `assets/wallpapers/` 并写 `manifest.json` | 放文件夹需要 Ctrl+R；界面上传不用 |
 | BGM | 界面里「设置 → 背景音乐 → 上传音乐」，或把音频放进 `assets/music/` | 放文件夹需要 Ctrl+R；界面上传不用 |
-| 音效 | 把 mp3 放进 `assets/sfx/`，文件名见该目录 README | 需要 Ctrl+R |
+| 音效 | **已经自带 5 个**；想换音色就覆盖同名 mp3（文件名见该目录 README），想关掉就删掉文件 | 需要 Ctrl+R |
 
 三处都**不需要**重新 build，也不需要重新安装插件：宿主端是按目录实时读取的。
+删掉 `assets/sfx/*.mp3` 也不会坏——每个音效都有合成兜底。
 
 ---
 
@@ -140,11 +146,13 @@ plugin_manager install_bundle  <仓库在本机的绝对路径>
 
 ```powershell
 npm login
-npm publish --dry-run     # 先看清单，确认没有音乐/音效/多余壁纸
+npm publish --dry-run     # 先看清单：应有代码 + cozy-cabin 两个 webp + assets/sfx/*.mp3 + 三个 README
 npm publish
 ```
 
-`files` 白名单已经写好，`--dry-run` 的输出里 `assets/` 下应该只有 `cozy-cabin*.webp` 和三个 README。
+`files` 白名单已经写好，`--dry-run` 的输出里 `assets/` 下应该只有
+`cozy-cabin*.webp`、`assets/sfx/*.mp3`（5 个）和三个 `assets/*/README.md`；
+**不应该**出现任何 `assets/music/` 音频，也不应出现第 3 张壁纸。
 别人装 npm 包的方式同理：`plugin_manager install_bundle dsh-minecraft-ui`。
 
 ---
@@ -169,8 +177,11 @@ git add -A; git commit -m "fix: ..."; git tag v1.0.x; git push --follow-tags
 
 ## 9. 万一收到版权投诉
 
-1. 不要争辩，先下架相关内容（本仓库本来就没放素材，通常不会发生）；
+1. 不要争辩，先处理投诉指向的内容：删掉对应的素材文件并提交，README/Release 里说明已移除；
 2. 检查 Issue/PR 里有没有人贴了素材文件或直链，删掉；
-3. 在 README 的第三方声明里说明「本项目不包含任何 Minecraft 素材，用户需自备」；
+3. **如果投诉的是那 5 个音效**：删除 `assets/sfx/*.mp3`（保留 README），
+   从 `package.json` 的 `files` 里去掉 `assets/sfx/*.mp3`，并在 README 的第三方声明里改成
+   「本项目不含任何 Minecraft 素材，用户需自备」。插件会自动退回合成音，功能不受影响；
 4. 如果是 `cozy-cabin.webp` 这张基础壁纸被投诉，把它从仓库删除，并在 `manifest.json` 里清空
-   `photos`，插件会自动进入「无壁纸」状态（仍然可用，只是没有背景图）。
+   `photos`，插件会自动进入「无壁纸」状态（仍然可用，只是没有背景图）；
+5. 顺手在 `.gitignore` 里恢复 `assets/sfx/*` 那两行，避免以后又误提交。

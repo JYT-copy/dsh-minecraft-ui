@@ -5,9 +5,11 @@
 
 > **⚠️ 版权说明（先读这条）**
 > 这是一个非官方粉丝主题，与 Mojang Studios / Microsoft 无关。
-> **仓库不包含任何 Minecraft 游戏素材**：没有原声音乐（C418），没有游戏音效，只自带 1 张基础壁纸。
-> 音乐与音效需要你自己准备 —— 插件在缺少音效文件时会自动退回**合成音效**，界面照样有声音。
-> 详见 [assets/music/README.md](assets/music/README.md)、[assets/sfx/README.md](assets/sfx/README.md)
+> **自带素材**：1 张基础壁纸（`cozy-cabin.webp`）+ **5 个 Minecraft 界面音效**（约 60 KB，让点击/开箱声像原版）。
+> 这 5 个音效是 Mojang 的游戏素材，**不在 MIT 许可范围内**，随包分发只出于粉丝主题的致敬目的；
+> 删掉 `assets/sfx/*.mp3` 后插件会自动退回**合成音效**，功能不受影响。
+> **不包含**：C418 的原声音乐、其余 Minecraft 美术素材。
+> 详见 [assets/sfx/README.md](assets/sfx/README.md)、[assets/music/README.md](assets/music/README.md)、[LICENSE](LICENSE) 末尾的第三方声明。
 
 - 代码 MIT；零第三方依赖、不联网：壁纸/音效/音乐全部由宿主端只读静态路由本地提供。
 - 零侵入可撤销：所有样式只在 `<body data-mc-theme="on">` 下生效，关掉主题（HUD 方块开关 / `Ctrl+Alt+M`）即恢复原始 DSH 外观。
@@ -109,16 +111,17 @@ GET /api/minecraft-ui/music/<file>                   # BGM 文件（ogg/oga/mp3/
 
 ---
 
-## 3. 素材自备
+## 3. 素材自备 / 替换
 
 | 想补什么 | 怎么做 | 要刷新吗 |
 | --- | --- | --- |
 | 壁纸 | 界面里上传；或放进 `assets/wallpapers/` 并写 `manifest.json`（格式见该目录 README） | 放文件夹需要 Ctrl+R |
 | BGM | 界面里「我的音乐 → 上传音乐」；或放进 `assets/music/` | 放文件夹需要 Ctrl+R |
-| 音效样本 | 把 mp3 放进 `assets/sfx/`，文件名见该目录 README | 需要 Ctrl+R |
+| 音效 | **已自带 5 个**；想换音色就覆盖 `assets/sfx/` 里的同名 mp3，想关掉就删文件（自动退回合成音） | 需要 Ctrl+R |
 
-三处都不需要重新 build、也不需要重装插件：宿主端按目录实时读取。仓库**刻意不包含**这些版权素材，
-原因与处理方式见 [docs/OPEN-SOURCE.md](docs/OPEN-SOURCE.md)。
+三处都不需要重新 build、也不需要重装插件：宿主端按目录实时读取。
+音乐与额外壁纸**刻意不随仓库发布**（版权原因，见 [docs/OPEN-SOURCE.md](docs/OPEN-SOURCE.md)）；
+5 个短音效按你的决定随包发布，但仍在 `LICENSE` 的第三方声明里说明了权利归属。
 
 ---
 
@@ -181,8 +184,8 @@ src/60-apply.js      生命周期：注册 locale → 注入 CSS → 应用配�
 src/99-tail.js       导出 { name, inject, apply }
 index.js             宿主端：壁纸 / 音效 / 音乐路由（inject: webServer）
 assets/wallpapers/   基础壁纸 + 清单 + 说明（其余壁纸不入仓库）
-assets/music/        空目录 + 说明（音乐不入仓库）
-assets/sfx/          空目录 + 说明（音效不入仓库）
+assets/music/        空目录 + 说明（C418 音乐不入仓库）
+assets/sfx/          5 个 Minecraft 界面音效 + 说明（随包发布，版权见 LICENSE）
 test/                自检脚本（不随插件包发布）
 docs/OPEN-SOURCE.md  开源发布指南与版权处理
 ```
@@ -214,7 +217,7 @@ node test/parse-locate.cjs         # 构建失败时定位出错片段的本地�
 - **素材走宿主路由而非内联**：壁纸、音效、音乐内联会把 bundle 撑到几十 MB；全部由宿主端 `webServer.register` 提供静态文件，客户端只拼 URL。清单路由还让「往目录扔文件」即刻生效。
 - **BGM 用采样而非合成**：合成循环与 Minecraft 听感差距明显；现在播放你自己的曲目，懒解码 + LRU 3 首控制内存，切歌用双 source 交叉淡入避免爆音。
 - **用户库放 IndexedDB**：上传的 `File` 只存在于浏览器进程，宿主半拿不到（没有跨进程文件通道），base64 RPC 又会被几 MB 的原图撑爆；IndexedDB 能存 Blob、不受 localStorage 5MB 配额限制。壁纸与音乐共用一个数据库、一次 `open`。
-- **版权素材不进仓库**：音乐/音效/第三方壁纸全部由 `.gitignore` 排除，`package.json` 的 `files` 白名单二次兜底（即使本机有素材也不会被打进 npm 包）；缺样本时靠合成兜底保证可用。
+- **素材边界按体积/风险分级**：C418 音乐与第三方壁纸是完整作品，全部由 `.gitignore` 排除、再由 `package.json` 的 `files` 白名单二次兜底；5 个 ~60 KB 的短音效（开箱/石切机/烟花/木门）决定随包发布，因为它们决定「像不像 Minecraft」，并在 `LICENSE` 与 `assets/sfx/README.md` 里明确标注 Mojang 归属、不在 MIT 之内；缺样本时靠合成兜底保证可用。
 - **音效只挂在交互元素上**：事件委托 + 捕获阶段，遍历 `button/a/[role=button]/[role=tab]/[role=menuitem]/…`，跳过插件自身 UI（`[data-mc-ui]`），避免误响。
 - **HUD 位置**：对齐发送键试过三种办法，前两种在真实页面里落到错误元素、把 HUD 顶到屏幕中间。最终是「固定右下角 + 带可信区间的微调」：只有量到的高度落在 30–150px 才采用。宁可少对齐一格，也不能再错位。
 - **默认值克制**：壁纸 `壁炉小屋`、音效默认开但音量 0.55、BGM 默认关——不会一装上就突然响。
@@ -224,7 +227,8 @@ node test/parse-locate.cjs         # 构建失败时定位出错片段的本地�
 ## 7. 已知限制
 
 - **渲染效果未由机器验证**：从命令行安装并校验（CSS 可解析、模块可加载、插槽已注册、资源路由 200/404、构建产物语法通过、自检脚本全绿），但像素级视觉与听感需要人眼人耳确认。
-- 音效样本不随仓库发布，默认听到的是**合成音效**；想要原版听感需自备样本（见 `assets/sfx/README.md`）。
+- 5 个音效样本随包发布（Mojang 素材，不在 MIT 许可内）；若它们被移除，插件会自动使用**合成音效**，功能不受影响。
+- 音乐与额外壁纸不随仓库发布（版权原因），需要使用者自备或界面上传。
 - 依赖 DSH 的主题令牌与 `data-ds-dark-theme`、`data-dsh-surface` 等语义属性；DSH 大版本改版后若令牌更名，需同步调整 `src/10-store.js` 的 `MC_STOCK_PROBE` 列表（缺失时自动退回内置兜底色）。
 - HUD 的微调是启发式的：输入框布局若大改，最多回到固定右下角，不会错位到屏幕中间。
 - `shell.overlay` 是点击穿透层，HUD 与弹窗已显式 `pointer-events: auto`。
