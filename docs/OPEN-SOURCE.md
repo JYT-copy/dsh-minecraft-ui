@@ -203,6 +203,13 @@ Organizations 必须 `No access`，否则「必须选一个组织」的校验过
 市场列表来自策划仓库 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin)，
 去那里按它的格式提一个 PR（一条条目），站点和市场通常一天内自动收录；**不要**给 dshmarket 仓库本身提条目 PR。
 
+**已经收录（2026-10-22 合并）**：PR
+[#8476](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/8476) 已由维护者合并，
+条目落在 `data/plugins/JYT-copy__dsh-minecraft-ui.yml`（commit `1e22b4e9`，category `theme`）。
+注意两处**生成物会滞后**：仓库根 `README.md` 的清单与 npm 上的 `dsh-plugin-catalog` 都是定时重新生成的，
+不会因为合并立刻更新；市场客户端（`dshmarket`）直接读 `data/plugins/*.yml`，所以那边能先看到。
+条目内容底稿在 [awesome-entry.yml](awesome-entry.yml)，以后改描述直接改那份再提新 PR。
+
 ---
 
 ## 8. 维护流程（以后每改一版）
